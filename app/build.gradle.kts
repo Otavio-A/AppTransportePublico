@@ -60,6 +60,11 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    //  Dependencias do app de 4 ecras
+    val nav_version = "2.8.2"
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+    val compose_material_version = "1.7.3"
+    implementation("androidx.compose.material:material:$compose_material_version")
 }
 secrets {
     // Optionally specify a different file name containing your secrets.
