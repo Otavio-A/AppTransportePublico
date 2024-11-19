@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    alias(libs.plugins.devtoolsKsp)
 }
 
 android {
@@ -13,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.apptransportepublico"
-        minSdk = 25
+        minSdk = 25 //Teoricamente era para ser 35....
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -80,6 +81,15 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:$nav_version")
     val compose_material_version = "1.7.3"
     implementation("androidx.compose.material:material:$compose_material_version")
+
+
+    //  Dependencias do sqlite
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation (libs.androidx.runtime.livedata)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    annotationProcessor(libs.androidx.room.room.compiler)
+    ksp(libs.androidx.room.room.compiler)
 }
 secrets {
     // Optionally specify a different file name containing your secrets.
