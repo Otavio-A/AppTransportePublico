@@ -82,6 +82,13 @@ dependencies {
     val compose_material_version = "1.7.3"
     implementation("androidx.compose.material:material:$compose_material_version")
 
+    //  Gson
+    implementation(libs.gson)
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
 
     //  Dependencias do sqlite
     implementation(libs.androidx.room.runtime)
