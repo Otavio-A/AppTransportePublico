@@ -63,10 +63,6 @@ fun Ecra01() {
     }
 }
 
-
-
-
-
 // FAVORITOS
 @Composable
 fun Ecra02() {
@@ -124,6 +120,19 @@ fun Ecra02() {
     }
 }
 
+// SETTINGS
+@Composable
+fun Ecra03() {
+    Column(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) {
+        Text(text = stringResource(id = R.string.ecra03),
+            fontWeight = FontWeight.Bold, color = Color.Gray,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            textAlign = TextAlign.Center, fontSize = 18.sp
+        )
+    }
+}
+
+
 @Composable
 fun BusItem(bus: Map<String, Any>) {
     Card(
@@ -140,17 +149,5 @@ fun BusItem(bus: Map<String, Any>) {
             Text(text = "Longitude: ${bus["longitude"]}", fontSize = 14.sp)
             Text(text = "Details: ${bus["popupContent"]}", fontSize = 12.sp)
         }
-    }
-}
-
-// SETTINGS
-@Composable
-fun Ecra03() {
-    Column(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) {
-        Text(text = stringResource(id = R.string.ecra03),
-            fontWeight = FontWeight.Bold, color = Color.Gray,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center, fontSize = 18.sp
-        )
     }
 }

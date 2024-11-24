@@ -41,14 +41,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         //enableEdgeToEdge()
         setContent {
-            /*AppTransportePublicoTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "World",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-                */
             AppTransportePublicoTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     ProgramaPrincipal()
