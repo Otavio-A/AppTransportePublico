@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,31 +38,51 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.runtime.*
+import androidx.compose.ui.viewinterop.AndroidView
+import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
+import androidx.compose.ui.platform.LocalContext
+
 
 // MAPA
 @Composable
 fun Ecra01() {
-    Column(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) {
-        var isMapLoaded by remember { mutableStateOf(false) }
-                // Add GoogleMap here
-                GoogleMap(
-                     modifier = Modifier.fillMaxSize(),
-                     onMapLoaded = {isMapLoaded = true}
-                )
-        if (!isMapLoaded) {
-            AnimatedVisibility(
-                visible = !isMapLoaded,
-                exit = fadeOut()
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.background)
-                        .wrapContentSize()
-                )
-            }
+    val context = LocalContext.current
+
+    // Configure OSMDroid with a unique user agent
+    DisposableEffect(Unit) {
+        Configuration.getInstance().userAgentValue = context.packageName // Use your app's package name as the user agent
+        onDispose { }
+    }
+
+    // Remember the map view instance to manage lifecycle
+    val mapView = remember { MapView(context) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            mapView.onDetach() // Clean up MapView resources
         }
     }
+
+    AndroidView(
+        factory = { mapView },
+        modifier = Modifier.fillMaxSize(),
+        update = {
+            mapView.apply {
+                setTileSource(TileSourceFactory.MAPNIK)
+                setMultiTouchControls(true)
+                controller.setZoom(15.0)
+                controller.setCenter(GeoPoint(41.1579, -8.6291)) // Example: Porto, Portugal
+            }
+        }
+    )
 }
+
+
 
 // FAVORITOS
 @Composable

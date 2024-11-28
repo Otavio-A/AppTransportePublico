@@ -19,8 +19,9 @@
         android:theme="@style/Theme.AppTransportePublico"
         tools:targetApi="31">
         <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="${MAPS_API_KEY}" />
+            android:name="osmdroid.configuration"
+            android:resource="@xml/provider_paths" />
+
 
         <activity
             android:name=".MainActivity"
