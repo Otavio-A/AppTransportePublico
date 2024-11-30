@@ -14,11 +14,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -80,37 +77,21 @@ fun Ecra01() {
 
 @Composable
 fun Ecra02() {
-    val autocarro = Autocarro()
-    var autocarrosFiltrados by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
+    var autocarros by remember { mutableStateOf<List<Autocarro>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         try {
-            autocarrosFiltrados = autocarro.filtraAuto("Linha 800") // Fetch and filter for Linha 800
+            autocarros = Autocarro.filtraAuto("Linha 800") // Todo permitir usuario escolher a linha
         } catch (e: Exception) {
-            errorMessage = "Error: ${e.message}"
+            errorMessage = "Erro: ${e.message}"
         } finally {
             isLoading = false
         }
     }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .wrapContentSize(Alignment.Center)
-            .padding(16.dp)
-    ) {
-        Text(
-            text = stringResource(id = R.string.ecra02),
-            fontWeight = FontWeight.Bold,
-            color = Color.Gray,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            fontSize = 18.sp
-        )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
+    Column(modifier = Modifier.fillMaxSize()) {
         if (isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         } else if (errorMessage != null) {
@@ -121,12 +102,9 @@ fun Ecra02() {
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(8.dp)
-            ) {
-                items(autocarrosFiltrados) { autocarro ->
-                    AutocarroItem(autocarro)
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(autocarros) { autocarro ->
+                    AutocarroCard(autocarro)
                 }
             }
         }
@@ -134,23 +112,24 @@ fun Ecra02() {
 }
 
 @Composable
-fun AutocarroItem(autocarro: Map<String, Any>) {  // PLACEHOLDER APENAS
+fun AutocarroCard(bus: Autocarro) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(text = "Linha: ${autocarro["linha"]}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text(text = "Latitude: ${autocarro["latitude"]}", fontSize = 14.sp)
-            Text(text = "Longitude: ${autocarro["longitude"]}", fontSize = 14.sp)
-            Text(text = "Details: ${autocarro["popupContent"]}", fontSize = 12.sp)
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = "Linha: ${bus.linha}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(text = "Latitude: ${bus.latitude}", fontSize = 14.sp)
+            Text(text = "Longitude: ${bus.longitude}", fontSize = 14.sp)
+            Text(text = "Details: ${bus.popupContent}", fontSize = 12.sp)
         }
     }
 }
+
+
+
 
 // SETTINGS
 @Composable
