@@ -6,5 +6,5 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "bus_lines")
 data class BusLine(
-    @PrimaryKey val linha: String // e.g., "Linha 800"
+    @PrimaryKey val linha: String
 )
