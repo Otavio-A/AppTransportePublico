@@ -1,6 +1,5 @@
 package com.example.apptransportepublico
 
-import com.google.gson.Gson
 data class FeatureCollection(
     val type: String,
     val features: List<Feature>
@@ -25,18 +24,18 @@ data class Geometry(
 
 class Autocarro {
     suspend fun filtraAuto(linha: String): List<Map<String, Any>> {
-        val busesOnLine = mutableListOf<Map<String, Any>>()
+        val autocarrosFiltrados = mutableListOf<Map<String, Any>>()
 
-        // Fetch JSON from API
+        // JSON da API
         val featureCollection = RetrofitInstance.apiService.getBusData()
 
-        // Filter features by linha
+        // Filtrar atributos de cada item, no caso de cada linha
         featureCollection.features.forEach { feature ->
             if (feature.properties.popupContent.contains("<h1>$linha</h1>")) {
                 val latitude = feature.geometry.coordinates[1]
                 val longitude = feature.geometry.coordinates[0]
 
-                busesOnLine.add(
+                autocarrosFiltrados.add(
                     mapOf(
                         "linha" to linha,
                         "latitude" to latitude,
@@ -47,7 +46,6 @@ class Autocarro {
             }
         }
 
-        return busesOnLine
+        return autocarrosFiltrados
     }
 }
-
