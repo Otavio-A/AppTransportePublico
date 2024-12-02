@@ -97,6 +97,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     annotationProcessor(libs.androidx.room.room.compiler)
     ksp(libs.androidx.room.room.compiler)
+
+    // OpenStreetMaps
+    implementation("org.osmdroid:osmdroid-android:6.1.15")
+    implementation("org.osmdroid:osmdroid-wms:6.1.15")
 }
 secrets {
     // Optionally specify a different file name containing your secrets.

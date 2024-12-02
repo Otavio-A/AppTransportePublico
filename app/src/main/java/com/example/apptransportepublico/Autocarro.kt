@@ -1,12 +1,15 @@
 package com.example.apptransportepublico
 
-import com.google.gson.Gson
-data class FeatureCollection(
+/*
+DATA CLASSES COM DADOS DO JSON
+====================================================================================================
+*/
+data class FeatureCollection( // Root json
     val type: String,
     val features: List<Feature>
 )
 
-data class Feature(
+data class Feature(  // Cada item vai ser um autocarro
     val type: String,
     val properties: Properties,
     val geometry: Geometry
@@ -19,35 +22,46 @@ data class Properties(
 )
 
 data class Geometry(
-    val coordinates: List<Double>,
+    val coordinates: List<Double>, // [longitude, latitude]
     val type: String
 )
 
-class Autocarro {
-    suspend fun filtraAuto(linha: String): List<Map<String, Any>> {
-        val busesOnLine = mutableListOf<Map<String, Any>>()
+/*
+CLASSE AUTOCARRO
+====================================================================================================
+ */
 
-        // Fetch JSON from API
-        val featureCollection = RetrofitInstance.apiService.getBusData()
+class Autocarro(
+    val linha: String,
+    val latitude: Double,
+    val longitude: Double,
+    val popupContent: String? // Teoricamente nunca deveria vir null : ^)
+) {
+    companion object {
+        suspend fun filtraAuto(linha: String): List<Autocarro> {
+            val autocarros = mutableListOf<Autocarro>()
 
-        // Filter features by linha
-        featureCollection.features.forEach { feature ->
-            if (feature.properties.popupContent.contains("<h1>$linha</h1>")) {
-                val latitude = feature.geometry.coordinates[1]
-                val longitude = feature.geometry.coordinates[0]
+            // JSON da API
+            val featureCollection = RetrofitInstance.apiService.getBusData()
 
-                busesOnLine.add(
-                    mapOf(
-                        "linha" to linha,
-                        "latitude" to latitude,
-                        "longitude" to longitude,
-                        "popupContent" to feature.properties.popupContent
+            featureCollection.features.forEach { feature ->
+                val popupContent = feature.properties.popupContent
+                if (popupContent?.contains("<h1>$linha</h1>") == true) {
+                    val latitude = feature.geometry.coordinates[1]
+                    val longitude = feature.geometry.coordinates[0]
+
+                    autocarros.add(
+                        Autocarro(
+                            linha = linha,
+                            latitude = latitude,
+                            longitude = longitude,
+                            popupContent = popupContent
+                        )
                     )
-                )
+                }
             }
-        }
 
-        return busesOnLine
+            return autocarros
+        }
     }
 }
-

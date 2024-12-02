@@ -36,6 +36,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 
+
+// OSM
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+
+import org.osmdroid.config.Configuration.*
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.views.MapView
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
