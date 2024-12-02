@@ -34,6 +34,8 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import androidx.compose.ui.platform.LocalContext
+import org.osmdroid.views.overlay.CopyrightOverlay
+
 // Import Classe Autocarro
 
 // MAPA
@@ -41,21 +43,17 @@ import androidx.compose.ui.platform.LocalContext
 fun Ecra01() {
     val context = LocalContext.current
 
-    // Configure OSMDroid with a unique user agent
-    DisposableEffect(Unit) { // This is required by OSMDroid to identify your app when fetching map tiles.
-        Configuration.getInstance().userAgentValue = context.packageName // Use your app's package name as the user agent
+    DisposableEffect(Unit) {
+        Configuration.getInstance().userAgentValue = context.packageName
         onDispose { }
     }
-    // This sets up the MapView with the desired tile source, zoom level, and center point.
-    // Remember the map view instance to manage lifecycle
     val mapView = remember { MapView(context) }
 
     DisposableEffect(Unit) {
         onDispose {
-            mapView.onDetach() // Clean up MapView resources
+            mapView.onDetach()
         }
     }
-    // The AndroidView Composable embeds the MapView in the Compose UI hierarchy.
 
     AndroidView(
         factory = { mapView },
@@ -65,7 +63,9 @@ fun Ecra01() {
                 setTileSource(TileSourceFactory.MAPNIK)
                 setMultiTouchControls(true)
                 controller.setZoom(15.0)
-                controller.setCenter(GeoPoint(41.1579, -8.6291)) // Example: Porto, Portugal
+                controller.setCenter(GeoPoint(41.1579, -8.6291)) // Example: Porto, Portugal PLACEHOLDER todo mudar para maia
+
+                overlays.add(CopyrightOverlay(context))
             }
         }
     )
@@ -111,6 +111,8 @@ fun Ecra02() {
     }
 }
 
+
+// PLACEHOLDER, NÃO VAI FICAR ASSIM, APENAS PARA DEMONSTRAR QUE A CALL FUNCIONA!!!!!!!!!!!!!!!!!
 @Composable
 fun AutocarroCard(bus: Autocarro) {
     Card(
