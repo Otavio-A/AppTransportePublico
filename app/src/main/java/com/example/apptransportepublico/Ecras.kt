@@ -1,7 +1,10 @@
 package com.example.apptransportepublico
 
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Text
@@ -16,15 +19,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 
@@ -76,45 +82,38 @@ fun Ecra01() {
 // FAVORITOS
 
 @Composable
-fun Ecra02() {
-    var autocarros by remember { mutableStateOf<List<Autocarro>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+fun Ecra02(viewModel: MainViewModel) {
+    val linhas by viewModel.allLinhas.observeAsState(emptyList())
 
-    LaunchedEffect(Unit) {
-        try {
-            autocarros = Autocarro.filtraAuto("Linha 800") // Todo permitir usuario escolher a linha
-        } catch (e: Exception) {
-            errorMessage = "Erro: ${e.message}"
-        } finally {
-            isLoading = false
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text(
+            text = "Linhas de Autocarro",
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            items(linhas) { linha ->
+                LinhaAutocarroCard(linha)
+            }
         }
-    }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        if (isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else if (errorMessage != null) {
-            Text(
-                text = errorMessage!!,
-                color = Color.Red,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-        } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(autocarros) { autocarro ->
-                    AutocarroCard(autocarro)
-                }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Button(onClick = { viewModel.insertLinha(LinhaAutocarro("Linha 800")) }) {
+                Text(text = "Add Linha 800")
+            }
+            Button(onClick = { viewModel.deleteLinha(LinhaAutocarro("Linha 800")) }) {
+                Text(text = "Remove Linha 800")
             }
         }
     }
 }
 
-
-// PLACEHOLDER, NÃO VAI FICAR ASSIM, APENAS PARA DEMONSTRAR QUE A CALL FUNCIONA!!!!!!!!!!!!!!!!!
 @Composable
-fun AutocarroCard(bus: Autocarro) {
+fun LinhaAutocarroCard(linha: LinhaAutocarro) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -122,13 +121,12 @@ fun AutocarroCard(bus: Autocarro) {
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Linha: ${bus.linha}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text(text = "Latitude: ${bus.latitude}", fontSize = 14.sp)
-            Text(text = "Longitude: ${bus.longitude}", fontSize = 14.sp)
-            Text(text = "Details: ${bus.popupContent}", fontSize = 12.sp)
+            Text(text = "Linha: ${linha.linha}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
 }
+
+
 
 
 
