@@ -3,4 +3,6 @@
     <string name="ecra01">ecra01</string>
     <string name="ecra02">ecra02</string>
     <string name="ecra03">ecra03</string>
+    <string name="PesquisarLinha">Pesquisar por Linha</string>
+    <string name="imagem_pesquisa">Pesquisar</string>
 </resources>
