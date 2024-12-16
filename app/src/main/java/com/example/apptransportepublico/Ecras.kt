@@ -1,8 +1,6 @@
 package com.example.apptransportepublico
 
 
-import android.annotation.SuppressLint
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,17 +18,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.TextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -45,17 +40,12 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import org.osmdroid.views.overlay.CopyrightOverlay
 import org.osmdroid.views.overlay.Marker
 
 import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.res.painterResource
 
@@ -70,11 +60,11 @@ fun Ecra01() {
     var searchQuery by remember { mutableStateOf("") }
     var active by remember { mutableStateOf(false)}
     var currentLinha by remember { mutableStateOf("Linha 800") }
-    var buses by remember { mutableStateOf<List<Autocarro>>(emptyList()) }
+    var autocarros by remember { mutableStateOf<List<Autocarro>>(emptyList()) }
     val mapView = remember { MapView(context) }
-    var sugestoes = remember { mutableStateListOf("Linha 800", "Linha 200", "Linha 12M") }
+    var sugestoes = remember { mutableStateListOf("Linha 800", "Linha 200" ) }
     LaunchedEffect(currentLinha) {  // Como filtraauto é uma suspend function eu preciso desse Launched Effect
-        buses = Autocarro.filtraAuto(currentLinha)
+        autocarros = Autocarro.filtraAuto(currentLinha)
     }
 
     DisposableEffect(Unit) {
@@ -83,12 +73,23 @@ fun Ecra01() {
     }
 
     Column (modifier = Modifier.fillMaxSize()){
+        /*
+        SEARCHBAR RETIRADA DE https://composables.com/material3/searchbar, USANDO O TUTORIAL https://youtu.be/90gokceSYdM?si=n9A4o5F0YP3MN4L-
+         */
+
         SearchBar(
             modifier = Modifier.fillMaxWidth(),
             query = searchQuery,
             onQueryChange = {searchQuery = it},
             onSearch = {
+                if (searchQuery.isNotEmpty()){
+                    currentLinha = searchQuery
+                }
+                if (!sugestoes.contains(searchQuery)) {     // Para não repitir historico
+                    sugestoes.add(searchQuery)
+                }
                 active = false
+                //  searchQuery = ""        // Caso queira apagar o q ta escrito na searchbar
             },
             active = active,
             onActiveChange = {active = it},
@@ -112,17 +113,29 @@ fun Ecra01() {
                         contentDescription = "Close Icon",
                     )
                 }
+                if (!active && searchQuery.isNotEmpty())
+                {
+                    Icon(               // Falta adicionar nos favoritos
+                        painter = painterResource(R.drawable.baseline_star_outline_24),
+                        contentDescription = "Não favorito Icon"
+                    )
+                }
             }
         )
         {
-            sugestoes.forEach{
-                Row(modifier = Modifier.padding(all = 14.dp)){
+            sugestoes.forEach{ sugestao ->
+                Row(modifier = Modifier
+                    .clickable {
+                        searchQuery = sugestao
+                        active = false
+                    }
+                    .padding(all = 14.dp)){
                     Icon(
                         modifier = Modifier.padding(end = 14.dp),
                         painter = painterResource(R.drawable.baseline_history_24),
                         contentDescription = "History Icon"
                     )
-                    Text(text = it)
+                    Text(text = sugestao)
                 }
             }
         }
@@ -134,15 +147,15 @@ fun Ecra01() {
                 mapView.apply {
                     setTileSource(TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
-                    controller.setZoom(15.0)
-                    controller.setCenter(GeoPoint(41.1579, -8.6291)) // Example: Porto, Portugal PLACEHOLDER todo mudar para maia
+                    controller.setZoom(14.3) // Quanto maior, mais zoom
+                    controller.setCenter(GeoPoint(41.2357400, -8.6199000)) // Centro da Maia
 
                     overlays.clear()
                     overlays.add(CopyrightOverlay(context))
 
-                    buses.forEach{bus -> val marker = Marker(this)
-                        marker.position = GeoPoint(bus.latitude, bus.longitude)
-                        marker.title = bus.popupContent
+                    autocarros.forEach{ auto -> val marker = Marker(this)
+                        marker.position = GeoPoint(auto.latitude, auto.longitude)
+                        marker.title = auto.popupContent
                         overlays.add(marker)
                     }
                 }
