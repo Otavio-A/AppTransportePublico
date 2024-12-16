@@ -3,6 +3,7 @@ package com.example.apptransportepublico
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,7 +26,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Icon
 import androidx.compose.material.TextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -56,6 +56,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.res.painterResource
+
 // Import Classe Autocarro
 
 // MAPA
@@ -69,6 +72,7 @@ fun Ecra01() {
     var currentLinha by remember { mutableStateOf("Linha 800") }
     var buses by remember { mutableStateOf<List<Autocarro>>(emptyList()) }
     val mapView = remember { MapView(context) }
+    var sugestoes = remember { mutableStateListOf("Linha 800", "Linha 200", "Linha 12M") }
     LaunchedEffect(currentLinha) {  // Como filtraauto é uma suspend function eu preciso desse Launched Effect
         buses = Autocarro.filtraAuto(currentLinha)
     }
@@ -80,15 +84,48 @@ fun Ecra01() {
 
     Column (modifier = Modifier.fillMaxSize()){
         SearchBar(
+            modifier = Modifier.fillMaxWidth(),
             query = searchQuery,
             onQueryChange = {searchQuery = it},
             onSearch = {
                 active = false
             },
             active = active,
-            onActiveChange = {active = it}
+            onActiveChange = {active = it},
+            placeholder = { Text(text = stringResource(id = R.string.PesquisarLinha))},
+            leadingIcon = {
+                Icon(
+                    painterResource(R.drawable.baseline_search_24),
+                    contentDescription = "Search Icon",
+                )
+            },
+            trailingIcon = {
+                if (active) {
+                    Icon(
+                        modifier = Modifier.clickable {
+                            if (searchQuery.isNotEmpty())
+                                searchQuery = ""        //Caso tenha algo escrito vai apagar
+                            else
+                                active = false          // Caso não tenha, a janela fecha : ^)
+                        },
+                        painter = painterResource(R.drawable.baseline_close_24),
+                        contentDescription = "Close Icon",
+                    )
+                }
+            }
         )
-        {}
+        {
+            sugestoes.forEach{
+                Row(modifier = Modifier.padding(all = 14.dp)){
+                    Icon(
+                        modifier = Modifier.padding(end = 14.dp),
+                        painter = painterResource(R.drawable.baseline_history_24),
+                        contentDescription = "History Icon"
+                    )
+                    Text(text = it)
+                }
+            }
+        }
 
         AndroidView(
             factory = { mapView },

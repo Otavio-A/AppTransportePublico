@@ -105,6 +105,7 @@ dependencies {
     // Searchbar
     implementation("androidx.compose.material3:material3:1.4.0-alpha02")
 
+
 }
 secrets {
     // Optionally specify a different file name containing your secrets.
