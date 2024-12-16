@@ -1,6 +1,7 @@
 package com.example.apptransportepublico
 
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,8 +27,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Icon
 import androidx.compose.material.TextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -50,39 +49,46 @@ import androidx.compose.ui.text.TextStyle
 import org.osmdroid.views.overlay.CopyrightOverlay
 import org.osmdroid.views.overlay.Marker
 
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 // Import Classe Autocarro
 
 // MAPA
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Ecra01() {
     val context = LocalContext.current
 
     var searchQuery by remember { mutableStateOf("") }
+    var active by remember { mutableStateOf(false)}
     var currentLinha by remember { mutableStateOf("Linha 800") }
     var buses by remember { mutableStateOf<List<Autocarro>>(emptyList()) }
-
+    val mapView = remember { MapView(context) }
     LaunchedEffect(currentLinha) {  // Como filtraauto é uma suspend function eu preciso desse Launched Effect
         buses = Autocarro.filtraAuto(currentLinha)
     }
-    DisposableEffect(Unit) {
-        Configuration.getInstance().userAgentValue = context.packageName
-        onDispose { }
-    }
-    val mapView = remember { MapView(context) }
 
     DisposableEffect(Unit) {
-        onDispose {
-            mapView.onDetach()
-        }
+        Configuration.getInstance().userAgentValue = context.packageName
+        onDispose { mapView.onDetach()}
     }
 
     Column (modifier = Modifier.fillMaxSize()){
         SearchBar(
             query = searchQuery,
             onQueryChange = {searchQuery = it},
-            onSearch = {linha -> currentLinha = linha}
+            onSearch = {
+                active = false
+            },
+            active = active,
+            onActiveChange = {active = it}
         )
-
+        {}
 
         AndroidView(
             factory = { mapView },
@@ -110,12 +116,17 @@ fun Ecra01() {
 
 
 
-
+/*
 @Composable
 fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit
+    onSearch: (String) -> Unit,
+    active: Boolean,
+    onActiveChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+
 ) {
     TextField(
         value = query,
@@ -133,6 +144,7 @@ fun SearchBar(
         }
     )
 }
+ */
 // FAVORITOS
 
 @Composable

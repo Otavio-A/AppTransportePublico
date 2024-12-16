@@ -101,6 +101,10 @@ dependencies {
     // OpenStreetMaps
     implementation("org.osmdroid:osmdroid-android:6.1.15")
     implementation("org.osmdroid:osmdroid-wms:6.1.15")
+
+    // Searchbar
+    implementation("androidx.compose.material3:material3:1.4.0-alpha02")
+
 }
 secrets {
     // Optionally specify a different file name containing your secrets.
