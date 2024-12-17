@@ -91,7 +91,6 @@ fun Ecra01(viewModel: MainViewModel) {
                     sugestoes.add(searchQuery)
                 }
                 active = false
-                //  searchQuery = ""        // Caso queira apagar o q ta escrito na searchbar
             },
             active = active,
             onActiveChange = {active = it},
