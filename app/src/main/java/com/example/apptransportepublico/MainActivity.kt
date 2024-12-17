@@ -104,7 +104,7 @@ fun AppNavigation(navController: NavHostController) {
     val viewModel: MainViewModel = viewModel(factory = LinhaAutocarroViewModelFactory(LocalContext.current.applicationContext as Application))
     NavHost(navController, startDestination = Destino.Ecra01.route) {
         composable(Destino.Ecra01.route) {
-            Ecra01()
+            Ecra01(viewModel)
         }
         composable(Destino.Ecra02.route) {
             Ecra02(viewModel)
@@ -117,12 +117,8 @@ fun AppNavigation(navController: NavHostController) {
 
 class LinhaAutocarroViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
             return MainViewModel(application) as T
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
 }
 
 

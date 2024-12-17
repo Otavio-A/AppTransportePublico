@@ -48,21 +48,23 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 // Import Classe Autocarro
 
 // MAPA
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Ecra01() {
+fun Ecra01(viewModel: MainViewModel) {
     val context = LocalContext.current
-
+    val favoritoAutocarro by viewModel.allLinhas.observeAsState(emptyList())
     var searchQuery by remember { mutableStateOf("") }
     var active by remember { mutableStateOf(false)}
     var currentLinha by remember { mutableStateOf("Linha 800") }
     var autocarros by remember { mutableStateOf<List<Autocarro>>(emptyList()) }
     val mapView = remember { MapView(context) }
     var sugestoes = remember { mutableStateListOf("Linha 800", "Linha 200" ) }
+
     LaunchedEffect(currentLinha) {  // Como filtraauto é uma suspend function eu preciso desse Launched Effect
         autocarros = Autocarro.filtraAuto(currentLinha)
     }
@@ -116,6 +118,9 @@ fun Ecra01() {
                 if (!active && searchQuery.isNotEmpty())
                 {
                     Icon(               // Falta adicionar nos favoritos
+                        modifier = Modifier.clickable {
+
+                        },
                         painter = painterResource(R.drawable.baseline_star_outline_24),
                         contentDescription = "Não favorito Icon"
                     )
@@ -164,37 +169,6 @@ fun Ecra01() {
     }
 }
 
-
-
-/*
-@Composable
-fun SearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
-    active: Boolean,
-    onActiveChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-
-) {
-    TextField(
-        value = query,
-        onValueChange = onQueryChange,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = Color.White)
-            .padding(8.dp),
-        placeholder = { Text(text = stringResource(id = R.string.PesquisarLinha))},
-        singleLine = true,
-        trailingIcon = {
-            IconButton(onClick = { onSearch(query)}) {
-                Icon(imageVector = Icons.Default.Search, contentDescription = stringResource(R.string.imagem_pesquisa))
-            }
-        }
-    )
-}
- */
 // FAVORITOS
 
 @Composable
