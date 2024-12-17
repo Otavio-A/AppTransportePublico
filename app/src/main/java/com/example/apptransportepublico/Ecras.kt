@@ -48,7 +48,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 // Import Classe Autocarro
 
@@ -57,14 +56,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun Ecra01(viewModel: MainViewModel) {
     val context = LocalContext.current
-    val favoritoAutocarro by viewModel.allLinhas.observeAsState(emptyList())
+    val listaFavoritos by viewModel.allLinhas.observeAsState(emptyList())
     var searchQuery by remember { mutableStateOf("") }
     var active by remember { mutableStateOf(false)}
     var currentLinha by remember { mutableStateOf("Linha 800") }
     var autocarros by remember { mutableStateOf<List<Autocarro>>(emptyList()) }
     val mapView = remember { MapView(context) }
     var sugestoes = remember { mutableStateListOf("Linha 800", "Linha 200" ) }
-
+    val foiFavoritado = listaFavoritos.any { it.linha == searchQuery }  // Verifica se a linha já foi favoritada
+    val autocarroFavoritado = LinhaAutocarro(searchQuery)
     LaunchedEffect(currentLinha) {  // Como filtraauto é uma suspend function eu preciso desse Launched Effect
         autocarros = Autocarro.filtraAuto(currentLinha)
     }
@@ -117,13 +117,26 @@ fun Ecra01(viewModel: MainViewModel) {
                 }
                 if (!active && searchQuery.isNotEmpty())
                 {
-                    Icon(               // Falta adicionar nos favoritos
-                        modifier = Modifier.clickable {
+                    if (foiFavoritado){
+                        Icon(
+                            modifier = Modifier.clickable{
+                                viewModel.deleteLinha(autocarroFavoritado)
+                            },
+                            painter = painterResource(R.drawable.baseline_star_24),
+                            contentDescription = "Favorito Icon"
+                        )
 
-                        },
-                        painter = painterResource(R.drawable.baseline_star_outline_24),
-                        contentDescription = "Não favorito Icon"
-                    )
+
+                    }
+                    else {
+                        Icon(               // Falta adicionar nos favoritos
+                            modifier = Modifier.clickable {
+                                viewModel.insertLinha(autocarroFavoritado)
+                            },
+                            painter = painterResource(R.drawable.baseline_star_outline_24),
+                            contentDescription = "Não favorito Icon"
+                        )
+                    }
                 }
             }
         )
@@ -131,6 +144,7 @@ fun Ecra01(viewModel: MainViewModel) {
             sugestoes.forEach{ sugestao ->
                 Row(modifier = Modifier
                     .clickable {
+                        currentLinha = sugestao
                         searchQuery = sugestao
                         active = false
                     }
