@@ -107,7 +107,7 @@ fun AppNavigation(navController: NavHostController) {
             Ecra01(viewModel)
         }
         composable(Destino.Ecra02.route) {
-            Ecra02(viewModel)
+            Ecra02(viewModel, navController)
         }
         composable(Destino.Ecra03.route) {
             Ecra03()

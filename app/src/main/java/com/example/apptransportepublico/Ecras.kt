@@ -49,6 +49,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 
 // Import Classe Autocarro
 
@@ -57,10 +59,12 @@ import androidx.compose.ui.res.painterResource
 @Composable
 fun Ecra01(viewModel: MainViewModel) {
     val context = LocalContext.current
+
+    val linhaSelecionada by viewModel.linhaSelecionada.observeAsState("Linha 800")
     val listaFavoritos by viewModel.allLinhas.observeAsState(emptyList())
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by remember { mutableStateOf(linhaSelecionada) }
     var active by remember { mutableStateOf(false)}
-    var currentLinha by remember { mutableStateOf("Linha 800") }
+    var currentLinha by remember { mutableStateOf(linhaSelecionada) }
     var autocarros by remember { mutableStateOf<List<Autocarro>>(emptyList()) }
     val mapView = remember { MapView(context) }
     var sugestoes = remember { mutableStateListOf("Linha 800", "Linha 200" ) }
@@ -87,6 +91,7 @@ fun Ecra01(viewModel: MainViewModel) {
             onSearch = {
                 if (searchQuery.isNotEmpty()){
                     currentLinha = searchQuery
+                    viewModel.alteraLinhaSelecionada(searchQuery)
                 }
                 if (!sugestoes.contains(searchQuery)) {     // Para não repitir historico
                     sugestoes.add(searchQuery)
@@ -125,11 +130,9 @@ fun Ecra01(viewModel: MainViewModel) {
                             painter = painterResource(R.drawable.baseline_star_24),
                             contentDescription = "Favorito Icon"
                         )
-
-
                     }
                     else {
-                        Icon(               // Falta adicionar nos favoritos
+                        Icon(
                             modifier = Modifier.clickable {
                                 viewModel.insertLinha(autocarroFavoritado)
                             },
@@ -158,7 +161,6 @@ fun Ecra01(viewModel: MainViewModel) {
                 }
             }
         }
-
         AndroidView(
             factory = { mapView },
             modifier = Modifier.fillMaxSize(),
@@ -186,7 +188,7 @@ fun Ecra01(viewModel: MainViewModel) {
 // FAVORITOS
 
 @Composable
-fun Ecra02(viewModel: MainViewModel) {
+fun Ecra02(viewModel: MainViewModel, navController: NavController) {
     val linhas by viewModel.allLinhas.observeAsState(emptyList())
     Column(
         modifier = Modifier.fillMaxSize()
@@ -203,20 +205,25 @@ fun Ecra02(viewModel: MainViewModel) {
             modifier = Modifier.padding(5.dp)
         ){
             items(linhas){
-                linha -> LinhaCard(linha, remover = {viewModel.deleteLinha(linha)})
+                linha -> LinhaCard(
+                linha,selecionar = {
+                    viewModel.alteraLinhaSelecionada(linha.linha)
+                    navController.navigate(Destino.Ecra01.route)    //Direciona o usuario para o mapa
+                                   },
+                remover = {viewModel.deleteLinha(linha)})
             }
         }
     }
 }
 
 @Composable
-fun LinhaCard(linha : LinhaAutocarro, remover: () -> Unit){
+fun LinhaCard(linha : LinhaAutocarro,selecionar : () -> Unit, remover: () -> Unit){
     OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 5.dp)
             .clickable {
-
+                selecionar()
             }
         ,
         border = BorderStroke(1.dp, Color.Gray)
