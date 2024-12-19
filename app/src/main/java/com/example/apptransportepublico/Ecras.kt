@@ -1,6 +1,7 @@
 package com.example.apptransportepublico
 
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,7 +24,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.DisposableEffect
@@ -46,6 +46,7 @@ import org.osmdroid.views.overlay.Marker
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.res.painterResource
 
@@ -187,52 +188,57 @@ fun Ecra01(viewModel: MainViewModel) {
 @Composable
 fun Ecra02(viewModel: MainViewModel) {
     val linhas by viewModel.allLinhas.observeAsState(emptyList())
-
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(
-            text = "Linhas de Autocarro",
+    Column(
+        modifier = Modifier.fillMaxSize()
+            .padding(16.dp)
+    ){
+        Text(text = stringResource(id = R.string.Favoritos),
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
+        Spacer(modifier = Modifier.height(10.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(linhas) { linha ->
-                LinhaAutocarroCard(linha)
-            }
-        }
-
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            Button(onClick = { viewModel.insertLinha(LinhaAutocarro("Linha 800")) }) {
-                Text(text = "Add Linha 800")
-            }
-            Button(onClick = { viewModel.deleteLinha(LinhaAutocarro("Linha 800")) }) {
-                Text(text = "Remove Linha 800")
+        LazyColumn(
+            modifier = Modifier.padding(5.dp)
+        ){
+            items(linhas){
+                linha -> LinhaCard(linha, remover = {viewModel.deleteLinha(linha)})
             }
         }
     }
 }
 
 @Composable
-fun LinhaAutocarroCard(linha: LinhaAutocarro) {
-    Card(
+fun LinhaCard(linha : LinhaAutocarro, remover: () -> Unit){
+    OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+            .padding(vertical = 5.dp)
+            .clickable {
+
+            }
+        ,
+        border = BorderStroke(1.dp, Color.Gray)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Linha: ${linha.linha}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Text(
+                text = linha.linha,
+                fontSize = 18.sp,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                modifier = Modifier.clickable { remover() },
+                painter = painterResource(R.drawable.baseline_close_24),
+                contentDescription = "Remover Icon"
+            )
         }
     }
 }
-
-
-
-
-
 
 // SETTINGS
 @Composable
