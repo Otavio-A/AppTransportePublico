@@ -46,7 +46,10 @@ import org.osmdroid.views.overlay.Marker
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -249,13 +252,18 @@ fun LinhaCard(linha : LinhaAutocarro,selecionar : () -> Unit, remover: () -> Uni
 
 // SETTINGS
 @Composable
-fun Ecra03() {
+fun Ecra03(viewModel: MainViewModel) {
+    val isDarkTheme by viewModel.isDarkTheme.observeAsState(false)
+
     Column(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) {
-        Text(text = stringResource(id = R.string.ecra03),
-            fontWeight = FontWeight.Bold, color = Color.Gray,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center, fontSize = 18.sp
-        )
+      Switch(
+          checked = isDarkTheme,
+          onCheckedChange = {viewModel.mudaTema()},
+          colors = SwitchDefaults.colors(
+              checkedIconColor = MaterialTheme.colorScheme.primary,
+              uncheckedThumbColor = MaterialTheme.colorScheme.onSurface
+          )
+      )
     }
 }
 

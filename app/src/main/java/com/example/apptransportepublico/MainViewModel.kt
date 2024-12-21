@@ -6,6 +6,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val temaDefault = MutableLiveData(false)   // FALSE = Default Light TRUE = Default Dark
+    val isDarkTheme: LiveData<Boolean> get() = temaDefault
+
     private val repository: LinhaAutocarroRepository
     val allLinhas: LiveData<List<LinhaAutocarro>>
     val linhaSelecionada = MutableLiveData<String>()
@@ -31,5 +35,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun alteraLinhaSelecionada(linha: String){
         linhaSelecionada.value = linha
+    }
+
+    fun mudaTema(){
+        temaDefault.value = temaDefault.value?.not()
     }
 }
