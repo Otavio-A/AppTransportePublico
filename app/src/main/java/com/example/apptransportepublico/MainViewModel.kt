@@ -6,10 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val temaDefault = MutableLiveData(false)   // FALSE = Default Light TRUE = Default Dark
-    val isDarkTheme: LiveData<Boolean> get() = temaDefault
-
+    private val preferencias = Preferencias(application)
+    private val temaAtual = MutableLiveData(preferencias.isDarkTheme())
+    val isDarkTheme: LiveData<Boolean> get() = temaAtual
     private val repository: LinhaAutocarroRepository
     val allLinhas: LiveData<List<LinhaAutocarro>>
     val linhaSelecionada = MutableLiveData<String>()
@@ -38,6 +37,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun mudaTema(){
-        temaDefault.value = temaDefault.value?.not()
+        val tema = !temaAtual.value!!
+        preferencias.salvarTema(tema)
+        temaAtual.value = tema
     }
 }

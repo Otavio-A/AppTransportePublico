@@ -42,8 +42,8 @@ class MainActivity : ComponentActivity() {
         val passaViewModelFactory: MainViewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
         //enableEdgeToEdge()
         setContent {
-
-            AppTransportePublicoTheme (darkTheme = passaViewModelFactory.isDarkTheme.observeAsState(false).value){
+            val isDarkTheme by passaViewModelFactory.isDarkTheme.observeAsState(false)
+            AppTransportePublicoTheme (darkTheme = isDarkTheme){
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     ProgramaPrincipal(passaViewModelFactory)
                 }
