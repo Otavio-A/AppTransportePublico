@@ -39,6 +39,7 @@ class Autocarro(
 ) {
     companion object {
         suspend fun filtraAuto(linha: String): List<Autocarro> {
+            return try{
             val autocarros = mutableListOf<Autocarro>()
 
             // JSON da API
@@ -60,8 +61,12 @@ class Autocarro(
                     )
                 }
             }
-
             return autocarros
+            }
+            catch (e: Exception){
+                e.printStackTrace()
+                emptyList()
+            }
         }
     }
 }

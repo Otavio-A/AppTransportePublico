@@ -3,7 +3,6 @@ package com.example.apptransportepublico
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,15 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -48,12 +44,23 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+
+import android.content.Context
+import java.util.Locale
+import android.os.LocaleList
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.OutlinedTextField
+import android.app.Activity
+
 
 // Import Classe Autocarro
 
@@ -78,7 +85,7 @@ fun Ecra01(viewModel: MainViewModel) {
     }
 
     DisposableEffect(Unit) {
-        Configuration.getInstance().userAgentValue = context.packageName
+        org.osmdroid.config.Configuration.getInstance().userAgentValue = context.packageName
         onDispose { mapView.onDetach()}
     }
 
@@ -101,13 +108,24 @@ fun Ecra01(viewModel: MainViewModel) {
                 }
                 active = false
             },
+            colors = SearchBarDefaults.colors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                inputFieldColors = TextFieldDefaults.colors(
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    focusedPlaceholderColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                )
+            ),
             active = active,
             onActiveChange = {active = it},
-            placeholder = { Text(text = stringResource(id = R.string.PesquisarLinha))},
+            placeholder = { Text(
+                text = stringResource(id = R.string.PesquisarLinha)) },
             leadingIcon = {
                 Icon(
                     painterResource(R.drawable.baseline_search_24),
                     contentDescription = "Search Icon",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             },
             trailingIcon = {
@@ -251,19 +269,51 @@ fun LinhaCard(linha : LinhaAutocarro,selecionar : () -> Unit, remover: () -> Uni
 }
 
 // SETTINGS
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Ecra03(viewModel: MainViewModel) {
     val isDarkTheme by viewModel.isDarkTheme.observeAsState(false)
+    val linguas = listOf("en" to "English", "pt" to "Português")
+    var linguaSelecionada by remember { mutableStateOf("pt") }
+    var expanded by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) {
-      Switch(
-          checked = isDarkTheme,
-          onCheckedChange = {viewModel.mudaTema()},
-          colors = SwitchDefaults.colors(
-              checkedIconColor = MaterialTheme.colorScheme.primary,
-              uncheckedThumbColor = MaterialTheme.colorScheme.onSurface
-          )
-      )
+        Text(text = stringResource(id = R.string.SelLingua))
+        Spacer(modifier = Modifier.height(8.dp))
+
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                readOnly = true,
+                value = linguas.find { it.first == linguaSelecionada }?.second ?: "Select",
+                onValueChange = {}, // Não deveria permitir mudar valores
+                label = { Text(text = stringResource(id = R.string.SelLingua)) },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                },
+                modifier = Modifier.menuAnchor()
+            )
+
+        }
+        if (isDarkTheme){
+            Text(text = "Dark Mode")
+        }
+        else
+        {
+            Text(text = "Light Mode")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Switch(
+            checked = isDarkTheme,
+            onCheckedChange = { viewModel.mudaTema() },
+            colors = SwitchDefaults.colors(
+                checkedIconColor = MaterialTheme.colorScheme.primary,
+                uncheckedThumbColor = MaterialTheme.colorScheme.onSurface
+            )
+        )
     }
 }
+
 
