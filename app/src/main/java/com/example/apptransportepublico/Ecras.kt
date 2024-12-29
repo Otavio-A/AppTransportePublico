@@ -1,6 +1,7 @@
 package com.example.apptransportepublico
 
 
+import android.Manifest
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -60,6 +61,16 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import android.app.Activity
+import android.content.pm.PackageManager
+
+// Para pegar a localização
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import android.location.Location
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.Priority
 
 
 // Import Classe Autocarro
@@ -80,8 +91,21 @@ fun Ecra01(viewModel: MainViewModel) {
     var sugestoes = remember { mutableStateListOf("Linha 800", "Linha 200" ) }
     val foiFavoritado = listaFavoritos.any { it.linha == searchQuery }  // Verifica se a linha já foi favoritada
     val autocarroFavoritado = LinhaAutocarro(searchQuery)
-    LaunchedEffect(currentLinha) {  // Como filtraauto é uma suspend function eu preciso desse Launched Effect
+    var temPermissao by remember { mutableStateOf(false) }
+    var localizacaoUsuario by remember { mutableStateOf<GeoPoint?>(null) }  //Já que eu não sei se tenho ou não a permissão
+
+    PermissaoLocalizacao(
+        onPermissionGranted = { temPermissao = true },
+        onPermissionDenied = { temPermissao = false }
+    )
+
+    LaunchedEffect(currentLinha, temPermissao) {  // Como filtraauto é uma suspend function eu preciso desse Launched Effect
         autocarros = Autocarro.filtraAuto(currentLinha)
+        pegaLocalizacao(
+            context = context,
+            onSuccess = { location -> localizacaoUsuario = GeoPoint(location.latitude, location.longitude)},
+            onError = {exception -> println( "Error: ${exception.message}")}
+        )
     }
 
     DisposableEffect(Unit) {
@@ -190,10 +214,25 @@ fun Ecra01(viewModel: MainViewModel) {
                     setTileSource(TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
                     controller.setZoom(14.3) // Quanto maior, mais zoom
-                    controller.setCenter(GeoPoint(41.2357400, -8.6199000)) // Centro da Maia
+
 
                     overlays.clear()
                     overlays.add(CopyrightOverlay(context))
+
+                    if (localizacaoUsuario != null){
+                        localizacaoUsuario?.let {
+                            controller.setCenter(it)
+                            val marker = Marker(this)
+                            marker.position = it
+                            marker.title = context.getString(R.string.You)
+                            overlays.add(marker)
+                        }
+                    }
+                    else{
+                       controller.setCenter(GeoPoint(41.2357, -8.6199))
+                    }
+
+
 
                     autocarros.forEach{ auto -> val marker = Marker(this)
                         marker.position = GeoPoint(auto.latitude, auto.longitude)
@@ -203,6 +242,39 @@ fun Ecra01(viewModel: MainViewModel) {
                 }
             }
         )
+    }
+}
+
+fun pegaLocalizacao(context: Context, onSuccess: (Location) -> Unit, onError: (Exception) -> Unit) {
+    val fusedLocationClient: FusedLocationProviderClient =
+        LocationServices.getFusedLocationProviderClient(context)
+    try {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            onError(SecurityException("Permissão de localização não obtida"))
+            return
+        }
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            5000 // Update em 5000 milisegundos
+        ).build()
+
+        fusedLocationClient.getCurrentLocation(
+            Priority.PRIORITY_HIGH_ACCURACY, null
+        ).addOnSuccessListener { location: Location? ->
+            if (location != null) {
+                onSuccess(location)
+            } else {
+                onError(Exception("Localização Null"))
+            }
+        }.addOnFailureListener { exception ->
+            onError(exception)
+        }
+    } catch (e: Exception) {
+        onError(e)
     }
 }
 
@@ -269,34 +341,12 @@ fun LinhaCard(linha : LinhaAutocarro,selecionar : () -> Unit, remover: () -> Uni
 }
 
 // SETTINGS
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Ecra03(viewModel: MainViewModel) {
     val isDarkTheme by viewModel.isDarkTheme.observeAsState(false)
-    val linguas = listOf("en" to "English", "pt" to "Português")
-    var linguaSelecionada by remember { mutableStateOf("pt") }
-    var expanded by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) {
-        Text(text = stringResource(id = R.string.SelLingua))
         Spacer(modifier = Modifier.height(8.dp))
-
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
-        ) {
-            OutlinedTextField(
-                readOnly = true,
-                value = linguas.find { it.first == linguaSelecionada }?.second ?: "Select",
-                onValueChange = {}, // Não deveria permitir mudar valores
-                label = { Text(text = stringResource(id = R.string.SelLingua)) },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                },
-                modifier = Modifier.menuAnchor()
-            )
-
-        }
         if (isDarkTheme){
             Text(text = "Dark Mode")
         }

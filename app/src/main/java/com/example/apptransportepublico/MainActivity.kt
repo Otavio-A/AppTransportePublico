@@ -25,15 +25,33 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.*
+
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 
 
 // OSM
 
 //Database
 import android.app.Application
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import kotlin.contracts.contract
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,4 +129,58 @@ fun BottomNavigationBar(navController: NavController, appItems: List<Destino>) {
             )
         }
     }
+}
+
+ /*
+If you declare any dangerous permissions, and if your app is installed on a device that runs Android 6.0 (API level 23) or higher, you must request the dangerous permissions at runtime
+https://developer.android.com/training/permissions/requesting
+ */
+@Composable
+fun PermissaoLocalizacao(
+    onPermissionGranted: () -> Unit,
+    onPermissionDenied: () -> Unit
+){
+    val context = LocalContext.current
+    var showRationale by remember { mutableStateOf(false)}
+    val permissaoObtida = remember(context){
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+    }
+
+    val launcherPermissaoLocalizacao = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                onPermissionGranted()
+            } else {
+                showRationale = true
+                onPermissionDenied()
+            }
+        }
+    )
+
+     LaunchedEffect(key1 = Unit) {
+         if (!permissaoObtida){
+             launcherPermissaoLocalizacao.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+         }
+         else{
+             onPermissionGranted()
+         }
+     }
+     if (showRationale){
+         Column (modifier = Modifier.fillMaxWidth()){
+             Text(text = stringResource(id = R.string.PedirPermissao))
+
+             }
+         Spacer(modifier = Modifier.height(16.dp))
+         Button(
+             onClick = {
+                 launcherPermissaoLocalizacao.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                 showRationale = false
+             }
+         ){
+             Text(text = stringResource(id = R.string.PedirPermissaoNovamente))
+         }
+     }
 }

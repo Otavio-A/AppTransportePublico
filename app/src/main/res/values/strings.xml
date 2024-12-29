@@ -7,4 +7,7 @@
     <string name="imagem_pesquisa">Pesquisar</string>
     <string name="Favoritos">Lista de favoritos</string>
     <string name="SelLingua">Mudar seu idioma</string>
+    <string name="PedirPermissao">Permissão necessária para providenciar sua localização no mapa</string>
+    <string name="PedirPermissaoNovamente">Pedir permissão novamente</string>
+    <string name="You">Você</string>
 </resources>

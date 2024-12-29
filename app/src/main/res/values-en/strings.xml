@@ -7,4 +7,7 @@
     <string name="imagem_pesquisa">Pesquisar</string>
     <string name="Favoritos">Favorites</string>
     <string name="SelLingua">Change language</string>
+    <string name="PedirPermissao">Location permission is required to provide your location on the map</string>
+    <string name="PedirPermissaoNovamente">Request permission again</string>
+    <string name="You">You</string>
 </resources>
