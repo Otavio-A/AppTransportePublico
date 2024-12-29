@@ -71,6 +71,10 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.OnTokenCanceledListener
+import kotlinx.coroutines.delay
 
 
 // Import Classe Autocarro
@@ -101,11 +105,25 @@ fun Ecra01(viewModel: MainViewModel) {
 
     LaunchedEffect(currentLinha, temPermissao) {  // Como filtraauto é uma suspend function eu preciso desse Launched Effect
         autocarros = Autocarro.filtraAuto(currentLinha)
-        pegaLocalizacao(
-            context = context,
-            onSuccess = { location -> localizacaoUsuario = GeoPoint(location.latitude, location.longitude)},
-            onError = {exception -> println( "Error: ${exception.message}")}
-        )
+        if (temPermissao){
+            pegaLocalizacao(
+                context = context,
+                onSuccess = { location -> localizacaoUsuario = GeoPoint(location.latitude, location.longitude)},
+                onError = {exception -> println( "Error: ${exception.message}")}
+            )
+            while (true) {      // Aqui eu to atualizando a localização do usuario em tempo real
+                delay(10000)    // Em milisegundos, ta pra atualizar a cada 10 seg : ^)
+                pegaLocalizacao(
+                    context = context,
+                    onSuccess = { location ->
+                        localizacaoUsuario = GeoPoint(location.latitude, location.longitude)
+                    },
+                    onError = { exception ->
+                        println("Error: ${exception.message}")
+                    }
+                )
+            }
+        }
     }
 
     DisposableEffect(Unit) {
@@ -263,12 +281,16 @@ fun pegaLocalizacao(context: Context, onSuccess: (Location) -> Unit, onError: (E
         ).build()
 
         fusedLocationClient.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY, null
+            Priority.PRIORITY_HIGH_ACCURACY,
+            object : CancellationToken() {
+                override fun onCanceledRequested(p0: OnTokenCanceledListener) = CancellationTokenSource().token
+                override fun isCancellationRequested() = false
+            }
         ).addOnSuccessListener { location: Location? ->
             if (location != null) {
                 onSuccess(location)
             } else {
-                onError(Exception("Localização Null"))
+                onError(Exception("Location is null"))
             }
         }.addOnFailureListener { exception ->
             onError(exception)
