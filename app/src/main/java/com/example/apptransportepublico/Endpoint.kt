@@ -8,4 +8,7 @@ interface Endpoint {
 
     @GET("BaZe/api/api4gj.php?nome=Paragens STCP Maia (GTFS)")
     suspend fun getParagemData(): ParagemFeatureCollection
+
+    @GET("BaZe/api/api4gj.php?nome=metro (linhas)")
+    suspend fun getMetroData(): MetroFeatureCollection
 }

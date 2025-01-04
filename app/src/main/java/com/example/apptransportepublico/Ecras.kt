@@ -77,6 +77,7 @@ import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
 import kotlinx.coroutines.delay
+import org.osmdroid.views.overlay.Polyline
 
 
 // Import Classe Autocarro
@@ -99,7 +100,8 @@ fun Ecra01(viewModel: MainViewModel) {
     val foiFavoritado = listaFavoritos.any { it.linha == searchQuery }  // Verifica se a linha já foi favoritada
     val autocarroFavoritado = LinhaAutocarro(searchQuery)
     var temPermissao by remember { mutableStateOf(false) }
-    var localizacaoUsuario by remember { mutableStateOf<GeoPoint?>(null) }  //Já que eu não sei se tenho ou não a permissão
+    var localizacaoUsuario by remember { mutableStateOf<GeoPoint?>(null) }  //Já que eu não sei se tenho ou não a permissãoo
+    var linhasMetro by remember { mutableStateOf<List<LinhaMetro>>(emptyList()) }
 
     PermissaoLocalizacao(
         onPermissionGranted = { temPermissao = true },
@@ -109,6 +111,7 @@ fun Ecra01(viewModel: MainViewModel) {
     LaunchedEffect(currentLinha, temPermissao) {  // Como filtraauto é uma suspend function eu preciso desse Launched Effect
         // TODO paragens não estão funcionando
         autocarros = Autocarro.filtraAuto(currentLinha)
+        linhasMetro = LinhaMetro.pegaLinhaMetro()
         Paragem.pegaParagens().let { paragemLista ->
             paragens = paragemLista
             Log.d("Paragens", "Fetched paragens: $paragens")
@@ -247,6 +250,17 @@ fun Ecra01(viewModel: MainViewModel) {
                     overlays.add(CopyrightOverlay(context))
 
                     // A ordem em que markers são adicionados define a prioridade. Aqui o Autocarro fica em cima, depois o usuario e por ultimo as paragens
+                    // TODO fazer nas settings poder desligar paragens e linhas de metro
+                    // TODO Fazer a linha de metro so aparecer se pesquisar
+                    linhasMetro.forEach { metroLine ->
+                        val polyline = Polyline().apply {
+                            setPoints(metroLine.coordinates)
+                            color = ContextCompat.getColor(context, R.color.Lime)
+                            width = if (metroLine.underConstruction) 4f else 8f
+                            title = metroLine.name
+                        }
+                        overlays.add(polyline)
+                    }
                     paragens.forEach { paragem ->
                         val marker = Marker(this)
                         marker.position = GeoPoint(paragem.latitude, paragem.longitude)
