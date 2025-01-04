@@ -67,7 +67,9 @@ import android.content.pm.PackageManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import android.location.Location
+import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.Priority
@@ -91,6 +93,7 @@ fun Ecra01(viewModel: MainViewModel) {
     var active by remember { mutableStateOf(false)}
     var currentLinha by remember { mutableStateOf(linhaSelecionada) }
     var autocarros by remember { mutableStateOf<List<Autocarro>>(emptyList()) }
+    var paragens by remember { mutableStateOf<List<Paragem>>(emptyList()) }
     val mapView = remember { MapView(context) }
     var sugestoes = remember { mutableStateListOf("Linha 800", "Linha 200" ) }
     val foiFavoritado = listaFavoritos.any { it.linha == searchQuery }  // Verifica se a linha já foi favoritada
@@ -104,7 +107,12 @@ fun Ecra01(viewModel: MainViewModel) {
     )
 
     LaunchedEffect(currentLinha, temPermissao) {  // Como filtraauto é uma suspend function eu preciso desse Launched Effect
+        // TODO paragens não estão funcionando
         autocarros = Autocarro.filtraAuto(currentLinha)
+        Paragem.pegaParagens().let { paragemLista ->
+            paragens = paragemLista
+            Log.d("Paragens", "Fetched paragens: $paragens")
+        }
         if (temPermissao){
             pegaLocalizacao(
                 context = context,
@@ -124,6 +132,7 @@ fun Ecra01(viewModel: MainViewModel) {
                 )
             }
         }
+
     }
 
     DisposableEffect(Unit) {
@@ -237,12 +246,23 @@ fun Ecra01(viewModel: MainViewModel) {
                     overlays.clear()
                     overlays.add(CopyrightOverlay(context))
 
+                    // A ordem em que markers são adicionados define a prioridade. Aqui o Autocarro fica em cima, depois o usuario e por ultimo as paragens
+                    paragens.forEach { paragem ->
+                        val marker = Marker(this)
+                        marker.position = GeoPoint(paragem.latitude, paragem.longitude)
+                        marker.title = paragem.linha
+                        marker.icon = ContextCompat.getDrawable(context, R.drawable.bus_stop)
+                        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                        overlays.add(marker)
+                    }
                     if (localizacaoUsuario != null){
                         localizacaoUsuario?.let {
                             controller.setCenter(it)
                             val marker = Marker(this)
                             marker.position = it
+                            marker.icon = ContextCompat.getDrawable(context, R.drawable.baseline_person_pin_circle_24)
                             marker.title = context.getString(R.string.You)
+                            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                             overlays.add(marker)
                         }
                     }
@@ -255,8 +275,11 @@ fun Ecra01(viewModel: MainViewModel) {
                     autocarros.forEach{ auto -> val marker = Marker(this)
                         marker.position = GeoPoint(auto.latitude, auto.longitude)
                         marker.title = auto.popupContent
+                        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                         overlays.add(marker)
                     }
+
+
                 }
             }
         )

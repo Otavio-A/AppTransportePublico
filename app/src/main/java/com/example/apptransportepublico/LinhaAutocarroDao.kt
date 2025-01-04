@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 @Dao
 interface LinhaAutocarroDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertLinhaAutocarro(linhaAutocarro: LinhaAutocarro)
 
     @Query("SELECT * FROM linha_Autocarro")

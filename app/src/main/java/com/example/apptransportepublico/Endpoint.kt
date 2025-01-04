@@ -5,4 +5,7 @@ import retrofit2.http.GET
 interface Endpoint {
     @GET("BaZe/api/api4gj.php?nome=BUS%20stcp%20(RT)")
     suspend fun getBusData(): FeatureCollection
+
+    @GET("BaZe/api/api4gj.php?nome=Paragens STCP Maia (GTFS)")
+    suspend fun getParagemData(): ParagemFeatureCollection
 }
