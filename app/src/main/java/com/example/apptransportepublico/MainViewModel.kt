@@ -6,8 +6,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: LinhaAutocarroRepository
-    val allLinhas: LiveData<List<LinhaAutocarro>>
+    private val preferencias = Preferencias(application)
+    private val temaAtual = MutableLiveData(preferencias.isDarkTheme())
+    val isDarkTheme: LiveData<Boolean> get() = temaAtual
+
+    private val linhaDao = LinhaDatabase.getInstance(application).linhaDao()
+    private val repository = LinhaRepository(linhaDao)
+
+    val allLinhasAutocarro: LiveData<List<LinhaAutocarro>> = repository.allAutocarros
+    val allLinhasMetro: LiveData<List<LinhaMetro>> = repository.allMetros
+
+    private val _verParagens = MutableLiveData(preferencias.isVendoParagens())
+    val verParagens: LiveData<Boolean> get() = _verParagens
+
     val linhaSelecionada = MutableLiveData<String>()
     /*
     Já que eu quero que linhaSelecionada seja modificado usei MutableLiveData
@@ -15,21 +26,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
 
 
-    init {
-        val linhaAutocarroDao = LinhaDatabase.getInstance(application).linhaAutocarroDao()
-        repository = LinhaAutocarroRepository(linhaAutocarroDao)
-        allLinhas = repository.allLinhas
+    fun insertAutocarro(linha: LinhaAutocarro) {
+        repository.insertAutocarro(linha)
     }
 
-    fun insertLinha(linha: LinhaAutocarro) {
-        repository.insertLinha(linha)
+    fun deleteAutocarro(linha: LinhaAutocarro) {
+        repository.deleteAutocarro(linha)
     }
 
-    fun deleteLinha(linha: LinhaAutocarro) {
-        repository.deleteLinha(linha)
+    fun insertMetro(linha: LinhaMetro) {
+        repository.insertMetro(linha)
+    }
+
+    fun deleteMetro(linha: LinhaMetro) {
+        repository.deleteMetro(linha)
     }
 
     fun alteraLinhaSelecionada(linha: String){
         linhaSelecionada.value = linha
+    }
+
+    fun mudaTema(){
+        val tema = !temaAtual.value!!
+        preferencias.salvarTema(tema)
+        temaAtual.value = tema
+    }
+
+    fun ligaParagens() {
+        val verParagensAtual = !_verParagens.value!!
+        preferencias.salvarVerParagens(verParagensAtual)
+        _verParagens.value = verParagensAtual
     }
 }

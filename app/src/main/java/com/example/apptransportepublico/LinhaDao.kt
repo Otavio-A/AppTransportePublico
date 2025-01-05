@@ -3,8 +3,8 @@ package com.example.apptransportepublico
 import androidx.lifecycle.LiveData
 import androidx.room.*
 @Dao
-interface LinhaAutocarroDao {
-    @Insert
+interface LinhaDao {
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertLinhaAutocarro(linhaAutocarro: LinhaAutocarro)
 
     @Query("SELECT * FROM linha_Autocarro")
@@ -12,6 +12,15 @@ interface LinhaAutocarroDao {
 
     @Delete
     suspend fun deleteLinhaAutocarro(linhaAutocarro: LinhaAutocarro)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertLinhaMetro(linhaMetro: LinhaMetro)
+
+    @Query ("SELECT * FROM linha_metro")
+    fun getLinhaMetroLiveData(): LiveData<List<LinhaMetro>>
+
+    @Delete
+    suspend fun deleteLinhaMetro(linhaMetro: LinhaMetro)
 }
 
 

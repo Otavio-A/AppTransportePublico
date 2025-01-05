@@ -35,10 +35,13 @@ class Autocarro(
     val linha: String,
     val latitude: Double,
     val longitude: Double,
-    val popupContent: String? // Teoricamente nunca deveria vir null : ^)
+    val popupContent: String?, // Teoricamente nunca deveria vir null : ^)
+    val velocidade: String? = null
 ) {
     companion object {
+        private val velocidadeRegex = """Velocidade:\s*(\d+)""".toRegex()
         suspend fun filtraAuto(linha: String): List<Autocarro> {
+            return try{
             val autocarros = mutableListOf<Autocarro>()
 
             // JSON da API
@@ -49,19 +52,25 @@ class Autocarro(
                 if (popupContent?.contains("<h1>$linha</h1>") == true) {
                     val latitude = feature.geometry.coordinates[1]
                     val longitude = feature.geometry.coordinates[0]
+                    val velocidade = velocidadeRegex.find(popupContent)?.groupValues?.get(1)
 
                     autocarros.add(
                         Autocarro(
                             linha = linha,
                             latitude = latitude,
                             longitude = longitude,
-                            popupContent = popupContent
+                            popupContent = popupContent,
+                            velocidade = velocidade
                         )
                     )
                 }
             }
-
             return autocarros
+            }
+            catch (e: Exception){
+                e.printStackTrace()
+                emptyList()
+            }
         }
     }
 }

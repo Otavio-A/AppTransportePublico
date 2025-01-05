@@ -105,6 +105,10 @@ dependencies {
     // Searchbar
     implementation("androidx.compose.material3:material3:1.4.0-alpha02")
 
+    // Localização
+    implementation ("com.google.android.gms:play-services-location:21.3.0")
+
+
 
 }
 secrets {

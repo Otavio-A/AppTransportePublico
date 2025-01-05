@@ -1,9 +1,14 @@
 <resources>
     <string name="app_name">AppTransportePublico</string>
-    <string name="ecra01">ecra01</string>
-    <string name="ecra02">ecra02</string>
-    <string name="ecra03">ecra03</string>
+    <string name="ecra01">ecra 01</string>
+    <string name="ecra02">ecra 02</string>
+    <string name="ecra03">ecra 03</string>
     <string name="PesquisarLinha">Pesquisar por Linha</string>
     <string name="imagem_pesquisa">Pesquisar</string>
     <string name="Favoritos">Lista de favoritos</string>
+    <string name="SelLingua">Mudar seu idioma</string>
+    <string name="PedirPermissao">Permissão necessária para providenciar sua localização no mapa</string>
+    <string name="PedirPermissaoNovamente">Pedir permissão novamente</string>
+    <string name="You">Você</string>
+    <string name="AlterarVisibilidadeParagem">Ver Paragens de Autocarro</string>
 </resources>

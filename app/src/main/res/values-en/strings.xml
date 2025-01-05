@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">AppTransportePublico</string>
+    <string name="ecra01">screen 01</string>
+    <string name="ecra02">screen 02</string>
+    <string name="ecra03">screen 03</string>
+    <string name="PesquisarLinha">Search</string>
+    <string name="imagem_pesquisa">Pesquisar</string>
+    <string name="Favoritos">Favorites</string>
+    <string name="SelLingua">Change language</string>
+    <string name="PedirPermissao">Location permission is required to provide your location on the map</string>
+    <string name="PedirPermissaoNovamente">Request permission again</string>
+    <string name="You">You</string>
+    <string name="AlterarVisibilidadeParagem">Toggle Bus stops</string>
+</resources>
