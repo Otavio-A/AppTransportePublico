@@ -279,7 +279,7 @@ fun Ecra01(viewModel: MainViewModel) {
 
                     autocarros.forEach{ auto -> val marker = Marker(this)
                         marker.position = GeoPoint(auto.latitude, auto.longitude)
-                        marker.title = "${auto.linha} \n${auto.velocidade}"
+                        marker.title = "${auto.linha} \n${auto.velocidade} km/h"
                         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                         overlays.add(marker)
                     }
