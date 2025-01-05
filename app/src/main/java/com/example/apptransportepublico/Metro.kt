@@ -26,8 +26,8 @@ data class MetroGeometry(
     val type: String
 )
 
-data class LinhaMetro(
-    val name: String,
+data class Metro(
+    val linha: String,
     val totalDistance: Double,
     val unit: String,
     val strokeColor: String,
@@ -35,9 +35,9 @@ data class LinhaMetro(
     val coordinates: List<GeoPoint>
 ) {
     companion object {
-        suspend fun pegaLinhaMetro(): List<LinhaMetro> {
+        suspend fun filtraMetro(linha: String): List<Metro> {
             return try {
-                val linhasMetro = mutableListOf<LinhaMetro>()
+                val linhasMetro = mutableListOf<Metro>()
 
                 // Fetch JSON from API
                 val featureCollection = RetrofitInstance.apiService.getMetroData()
@@ -45,30 +45,29 @@ data class LinhaMetro(
                 featureCollection.features.forEach { feature ->
                     val properties = feature.properties
                     val geometry = feature.geometry
-
-                    // Parse properties and geometry
                     val name = properties.popupContent
-                        .substringAfter("px;'>")
-                        .substringBefore("<hr>") // Extract metro line name
+                        .substringAfter("-> ") // px;'>
+                        .substringBefore("< ->") // Extract metro line name
                     val totalDistance = properties.total_distance.toDoubleOrNull() ?: 0.0
                     val unit = properties.unit
                     val strokeColor = properties.stroke
                     val underConstruction = properties.underConstruction
 
-                    val coordinates = geometry.coordinates.map { coordinatePair ->
-                        GeoPoint(coordinatePair[1], coordinatePair[0]) // Convert to GeoPoint
-                    }
-
-                    linhasMetro.add(
-                        LinhaMetro(
-                            name = name,
-                            totalDistance = totalDistance,
-                            unit = unit,
-                            strokeColor = strokeColor,
-                            underConstruction = underConstruction,
-                            coordinates = coordinates
+                    if (name?.contains("$linha") == true){
+                        val coordinates = geometry.coordinates.map { coordinatePair ->
+                            GeoPoint(coordinatePair[1], coordinatePair[0]) // Convert to GeoPoint
+                        }
+                        linhasMetro.add(
+                            Metro(
+                                linha = name,
+                                totalDistance = totalDistance,
+                                unit = unit,
+                                strokeColor = strokeColor,
+                                underConstruction = underConstruction,
+                                coordinates = coordinates
+                            )
                         )
-                    )
+                    }
                 }
 
                 linhasMetro

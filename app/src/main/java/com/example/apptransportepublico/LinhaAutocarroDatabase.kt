@@ -5,9 +5,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import android.content.Context
 
-@Database(entities = [LinhaAutocarro::class], version = 1, exportSchema = false)
+@Database(entities = [LinhaAutocarro::class, LinhaMetro::class], version = 2, exportSchema = false)
 abstract class LinhaDatabase : RoomDatabase() {
-    abstract fun linhaAutocarroDao(): LinhaAutocarroDao
+    abstract fun linhaDao(): LinhaDao
 
     companion object {
         private var INSTANCE: LinhaDatabase? = null
@@ -19,7 +19,7 @@ abstract class LinhaDatabase : RoomDatabase() {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
                         LinhaDatabase::class.java,
-                        "linha_autocarro_database"
+                        "linha_database"
                     ).fallbackToDestructiveMigration()
                         .build()
                     INSTANCE = instance

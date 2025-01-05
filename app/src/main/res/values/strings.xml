@@ -10,4 +10,5 @@
     <string name="PedirPermissao">Permissão necessária para providenciar sua localização no mapa</string>
     <string name="PedirPermissaoNovamente">Pedir permissão novamente</string>
     <string name="You">Você</string>
+    <string name="AlterarVisibilidadeParagem">Ver Paragens de Autocarro</string>
 </resources>
