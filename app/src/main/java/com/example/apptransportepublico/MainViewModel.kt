@@ -16,8 +16,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val allLinhasAutocarro: LiveData<List<LinhaAutocarro>> = repository.allAutocarros
     val allLinhasMetro: LiveData<List<LinhaMetro>> = repository.allMetros
 
-    private val _verParagens = MutableLiveData(true)
+    private val _verParagens = MutableLiveData(preferencias.isVendoParagens())
     val verParagens: LiveData<Boolean> get() = _verParagens
+
     val linhaSelecionada = MutableLiveData<String>()
     /*
     Já que eu quero que linhaSelecionada seja modificado usei MutableLiveData
@@ -51,7 +52,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         temaAtual.value = tema
     }
 
-    fun ligaParagens(){
-        _verParagens.value = _verParagens.value != true
+    fun ligaParagens() {
+        val verParagensAtual = !_verParagens.value!!
+        preferencias.salvarVerParagens(verParagensAtual)
+        _verParagens.value = verParagensAtual
     }
 }

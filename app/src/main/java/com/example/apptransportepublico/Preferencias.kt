@@ -9,13 +9,22 @@ class Preferencias(context: Context) {
 
     companion object {
         private const val DARK_THEME_KEY = "dark_theme"
+        private const val VER_PARAGENS_KEY = "ver_paragens"
     }
 
     fun isDarkTheme(): Boolean {
         return preferences.getBoolean(DARK_THEME_KEY, false) // Default to light theme
     }
 
+    fun isVendoParagens(): Boolean{
+        return preferences.getBoolean(VER_PARAGENS_KEY, true)
+    }
+
     fun salvarTema(isDarkTheme: Boolean) {
         preferences.edit().putBoolean(DARK_THEME_KEY, isDarkTheme).apply()
+    }
+
+    fun salvarVerParagens(verParagens: Boolean){
+        preferences.edit().putBoolean(VER_PARAGENS_KEY, verParagens).apply()
     }
 }
